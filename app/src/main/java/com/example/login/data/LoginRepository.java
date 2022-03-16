@@ -1,6 +1,9 @@
 package com.example.login.data;
 
-import com.example.login.data.model.LoggedInUser;
+import android.content.Context;
+
+import com.example.login.data.model.LoggedInSessionAndUser;
+
 
 /**
  * Class that requests authentication and user information from the remote data source and
@@ -10,45 +13,55 @@ public class LoginRepository {
 
     private static volatile LoginRepository instance;
 
-    private LoginDataSource dataSource;
+    private LoginDataSource loginDataSource;
+    private SessionDataSource sessionDataSource;
 
     // If user credentials will be cached in local storage, it is recommended it be encrypted
     // @see https://developer.android.com/training/articles/keystore
-    private LoggedInUser user = null;
+//    private LoggedInUser user = null;
+    private LoggedInSessionAndUser session = null;
 
     // private constructor : singleton access
-    private LoginRepository(LoginDataSource dataSource) {
-        this.dataSource = dataSource;
+    private LoginRepository(LoginDataSource loginDataSource, SessionDataSource sessionDataSource) {
+        this.loginDataSource = loginDataSource;
+        this.sessionDataSource = sessionDataSource;
     }
 
-    public static LoginRepository getInstance(LoginDataSource dataSource) {
-        if (instance == null) {
-            instance = new LoginRepository(dataSource);
+    public static LoginRepository getInstance(LoginDataSource dataSource, SessionDataSource sessionDataSource) {
+        if(instance == null){
+            instance = new LoginRepository(dataSource, sessionDataSource);
         }
         return instance;
     }
 
     public boolean isLoggedIn() {
-        return user != null;
+        return session != null;
     }
 
     public void logout() {
-        user = null;
-        dataSource.logout();
+        loginDataSource.logout(session.getTmdbSession());
+        session = null;
     }
 
-    private void setLoggedInUser(LoggedInUser user) {
-        this.user = user;
+    private void setLoggedInUser(LoggedInSessionAndUser session) {
+        this.session = session;
         // If user credentials will be cached in local storage, it is recommended it be encrypted
         // @see https://developer.android.com/training/articles/keystore
     }
 
-    public Result<LoggedInUser> login(String username, String password) {
-        // handle login
-        Result<LoggedInUser> result = dataSource.login(username, password);
+    public Result<LoggedInSessionAndUser> login(String username, String password) {
+        Result<LoggedInSessionAndUser> result = loginDataSource.login(username, password);
         if (result instanceof Result.Success) {
-            setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
+            this.setLoggedInUser(((Result.Success<LoggedInSessionAndUser>) result).getData());
         }
         return result;
+    }
+
+    public Result<?> setSession(Context context, String session) {
+        return sessionDataSource.setSession(context, session);
+    }
+
+    public Result<?> getSession(Context context) {
+        return sessionDataSource.getSession(context);
     }
 }

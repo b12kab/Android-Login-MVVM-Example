@@ -25,8 +25,6 @@ import android.widget.Toast;
 
 import com.example.login.R;
 import com.example.login.ui.loggedin.LoggedInActivity;
-import com.example.login.ui.login.LoginViewModel;
-import com.example.login.ui.login.LoginViewModelFactory;
 import com.example.login.databinding.ActivityLoginBinding;
 
 public class LoginActivity extends AppCompatActivity {
@@ -73,19 +71,37 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 loadingProgressBar.setVisibility(View.GONE);
                 if (loginResult.getError() != null) {
-                    showLoginFailed(loginResult.getError());
+                    if (loginResult.getError() instanceof Integer) {
+                        showLoginFailed((Integer) loginResult.getError());
+                    } else if (loginResult.getError() instanceof String) {
+                        showLoginFailed((String) loginResult.getError());
+                    }
                 }
+
                 if (loginResult.getSuccess() != null) {
                     updateUiWithUser(loginResult.getSuccess());
-                    setResult(Activity.RESULT_OK);
-                    Intent intent = new Intent(LoginActivity.this, LoggedInActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-//                setResult(Activity.RESULT_OK);
+                    loginViewModel.updateSession(getApplicationContext(), loginResult.getSuccess().getSessionId());
 
-                //Complete and destroy login activity once successful
-//                finish();
+//                    setResult(Activity.RESULT_OK);
+//                    Intent intent = new Intent(LoginActivity.this, LoggedInActivity.class);
+//                    startActivity(intent);
+//                    finish();
+                }
+            }
+        });
+
+        loginViewModel.getSessionUpdateResult().observe(this, loginResult -> {
+            if (loginResult == null) {
+                return;
+            }
+            if (loginResult.getError() != null) {
+                showLoginFailed((Integer) loginResult.getError());
+            }
+            if (loginResult.getSuccess() != null) {
+                setResult(Activity.RESULT_OK);
+                Intent intent = new Intent(LoginActivity.this, LoggedInActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
 
@@ -134,6 +150,10 @@ public class LoginActivity extends AppCompatActivity {
         String welcome = getString(R.string.welcome) + model.getDisplayName();
         // TODO : initiate successful logged in experience
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
+    }
+
+    private void showLoginFailed(String errorString) {
+        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
     }
 
     private void showLoginFailed(@StringRes Integer errorString) {

@@ -1,16 +1,19 @@
 <resources>
     <string name="app_name">Tmdb Login MVVM Example</string>
     <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
+    <string name="prompt_userid">User Id</string>
     <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in">TMDb sign in</string>
     <string name="action_sign_in_short">Sign in</string>
-    <string name="welcome">"Welcome !"</string>
+    <string name="welcome">"Welcome "</string>
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
-    <string name="title_activity_logged_in">LoggedInActivity</string>
+    <string name="session_save_failed">Save session failed</string>
+    <string name="session_get_failed">Failed to get session</string>
 
+    <string name="service_failed">"Failed to connect to login service"</string>
+    <string name="title_activity_logged_in">LoggedInActivity</string>
     <!-- Strings used for fragments for navigation -->
     <string name="session_lbl">session:</string>
     <string name="session_default">N/A</string>

@@ -4,17 +4,21 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import android.content.Context;
 import android.util.Patterns;
 
+import com.b12kab.tmdblibrary.exceptions.TmdbException;
 import com.example.login.data.LoginRepository;
 import com.example.login.data.Result;
-import com.example.login.data.model.LoggedInUser;
+import com.example.login.data.model.LoggedInSessionAndUser;
 import com.example.login.R;
 
 public class LoginViewModel extends ViewModel {
 
     private MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
     private MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
+    private MutableLiveData<LoginResult> sessionUpdateResult = new MutableLiveData<>();
+
     private LoginRepository loginRepository;
 
     LoginViewModel(LoginRepository loginRepository) {
@@ -22,32 +26,59 @@ public class LoginViewModel extends ViewModel {
     }
 
     LiveData<LoginFormState> getLoginFormState() {
-        return loginFormState;
+        return this.loginFormState;
     }
 
     LiveData<LoginResult> getLoginResult() {
-        return loginResult;
+        return this.loginResult;
+    }
+
+    LiveData<LoginResult> getSessionUpdateResult() {
+        return this.sessionUpdateResult;
     }
 
     public void login(String username, String password) {
         // can be launched in a separate asynchronous job
-        Result<LoggedInUser> result = loginRepository.login(username, password);
+        Result<LoggedInSessionAndUser> result = loginRepository.login(username, password);
 
         if (result instanceof Result.Success) {
-            LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
-            loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
+            LoggedInSessionAndUser data = ((Result.Success<LoggedInSessionAndUser>) result).getData();
+            loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName(), data.getTmdbSession())));
         } else {
-            loginResult.setValue(new LoginResult(R.string.login_failed));
+            boolean useStringsXmlErrorMsg = true;
+            if (result instanceof Result.Error) {
+                Exception ex = ((Result.Error) result).getError();
+                if (ex instanceof TmdbException) {
+                    TmdbException tmdbException = (TmdbException) ex;
+                    if (tmdbException.getUseMessage() == TmdbException.UseMessage.Yes && ex.getMessage() != null && !ex.getMessage().trim().isEmpty() ) {
+                        loginResult.setValue(new LoginResult(tmdbException.getMessage()));
+                        useStringsXmlErrorMsg = false;
+                    }
+                }
+            }
+
+            if (useStringsXmlErrorMsg) {
+                loginResult.setValue(new LoginResult(R.string.login_failed));
+            }
+        }
+    }
+
+    public void updateSession(Context context, String tmdbSessionId) {
+        Result<?> result = loginRepository.setSession(context, tmdbSessionId);
+        if (result instanceof Result.Success) {
+            this.sessionUpdateResult.setValue(new LoginResult(LoggedInUserView.createSessionIdOnly(tmdbSessionId)));
+        } else {
+            this.sessionUpdateResult.setValue(new LoginResult(new LoginResult(R.string.session_save_failed)));
         }
     }
 
     public void loginDataChanged(String username, String password) {
         if (!isUserNameValid(username)) {
-            loginFormState.setValue(new LoginFormState(R.string.invalid_username, null));
+            this.loginFormState.setValue(new LoginFormState(R.string.invalid_username, null));
         } else if (!isPasswordValid(password)) {
-            loginFormState.setValue(new LoginFormState(null, R.string.invalid_password));
+            this.loginFormState.setValue(new LoginFormState(null, R.string.invalid_password));
         } else {
-            loginFormState.setValue(new LoginFormState(true));
+            this.loginFormState.setValue(new LoginFormState(true));
         }
     }
 
