@@ -5,6 +5,7 @@ import android.app.Activity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.login.R;
+import com.example.login.ui.loggedin.LoggedInActivity;
 import com.example.login.ui.login.LoginViewModel;
 import com.example.login.ui.login.LoginViewModelFactory;
 import com.example.login.databinding.ActivityLoginBinding;
@@ -75,11 +77,15 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 if (loginResult.getSuccess() != null) {
                     updateUiWithUser(loginResult.getSuccess());
+                    setResult(Activity.RESULT_OK);
+                    Intent intent = new Intent(LoginActivity.this, LoggedInActivity.class);
+                    startActivity(intent);
+                    finish();
                 }
-                setResult(Activity.RESULT_OK);
+//                setResult(Activity.RESULT_OK);
 
                 //Complete and destroy login activity once successful
-                finish();
+//                finish();
             }
         });
 
