@@ -17,7 +17,7 @@ public class SessionDataSource {
             LoggedInSession loggedInSession = new LoggedInSession();
             loggedInSession.setTmdbSession(sessionId);
 
-            return new Result.Success(loggedInSession);
+            return new Result.Success<LoggedInSession>(loggedInSession);
         } catch (Exception e) {
             return new Result.Error(e);
         }
@@ -30,7 +30,7 @@ public class SessionDataSource {
             editor.putString(SHARED_PREFERENCE_KEY_SESSION_KEY, tmdbSession);
             editor.apply();
 
-            return new Result.Success(true);
+            return new Result.Success<Boolean>(true);
         } catch (Exception e) {
             return new Result.Error(e);
         }
@@ -43,7 +43,7 @@ public class SessionDataSource {
             editor.remove(SHARED_PREFERENCE_KEY_SESSION_KEY);
             editor.apply();
 
-            return new Result.Success(true);
+            return new Result.Success<Boolean>(true);
         } catch (Exception e) {
             return new Result.Error(e);
         }

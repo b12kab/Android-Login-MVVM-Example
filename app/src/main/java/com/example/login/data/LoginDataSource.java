@@ -7,7 +7,6 @@ import com.b12kab.tmdblibrary.exceptions.TmdbException;
 import com.b12kab.tmdblibrary.implementation.SessionHelper;
 import com.example.login.app.ThisApplication;
 import com.example.login.data.model.LoggedInSessionAndUser;
-import com.example.login.data.model.LoggedOutUser;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,7 +38,7 @@ public class LoginDataSource {
         this.sessionHelper = sessionHelper;
     }
 
-    public Result<LoggedInSessionAndUser> login(String username, String password) {
+    public Result<?> login(String username, String password) {
 
         try {
             String session = null;
@@ -74,7 +73,7 @@ public class LoginDataSource {
     }
 
     public Result<?> logout(String session) {
-        return new Result.Success<LoggedOutUser>(null);
+        return new Result.Success<Boolean>(true);
     }
 
     private void obtainTmdbSessions() {
