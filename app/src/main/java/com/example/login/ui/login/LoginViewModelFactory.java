@@ -5,9 +5,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.annotation.NonNull;
 
 import com.b12kab.tmdblibrary.implementation.SessionHelper;
+import com.example.login.data.ISessionDataSource;
 import com.example.login.data.LoginDataSource;
 import com.example.login.data.LoginRepository;
-import com.example.login.data.SessionDataSource;
+import com.example.login.data.SessionDataStoreDataSource;
 
 /**
  * ViewModel provider factory to instantiate LoginViewModel.
@@ -22,7 +23,9 @@ public class LoginViewModelFactory implements ViewModelProvider.Factory {
         if (modelClass.isAssignableFrom(LoginViewModel.class)) {
             // TODO: add injection later
             SessionHelper sessionHelper = new SessionHelper();
-            return (T) new LoginViewModel(LoginRepository.getInstance(new LoginDataSource(sessionHelper), new SessionDataSource()));
+//            ISessionDataSource dataSource = new SessionPreferenceDataSource();
+            ISessionDataSource dataSource = new SessionDataStoreDataSource();
+            return (T) new LoginViewModel(LoginRepository.getInstance(new LoginDataSource(sessionHelper), dataSource));
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");
         }

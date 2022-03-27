@@ -15,8 +15,8 @@ import java.util.concurrent.Future;
 import static com.b12kab.tmdblibrary.NetworkHelper.TmdbCodes.TMDB_CODE_EXCEPTION_UNKNOWN_CAUSE;
 import static java.lang.Thread.sleep;
 
-public class SessionDataSource {
-    private final static String TAG = SessionDataSource.class.getSimpleName();
+public class SessionPreferenceDataSource implements ISessionDataSource {
+    private final static String TAG = SessionPreferenceDataSource.class.getSimpleName();
 
     private static final String SHARED_PREFERENCE_EDITOR_NAME = "shared_pref_name";
     private static final String SHARED_PREFERENCE_KEY_SESSION_KEY = "session_id";
@@ -26,6 +26,10 @@ public class SessionDataSource {
             String sessionId = context.getSharedPreferences(SHARED_PREFERENCE_EDITOR_NAME, Context.MODE_PRIVATE).
                     getString(SHARED_PREFERENCE_KEY_SESSION_KEY, null);
 
+            /*
+             * Under conditions where there is more data in the shared preference, this may cause ANR's.
+             * Given that there is little data, this is highly unlikely.
+             */
             LoggedInSession loggedInSession = new LoggedInSession();
             loggedInSession.setTmdbSession(sessionId);
 

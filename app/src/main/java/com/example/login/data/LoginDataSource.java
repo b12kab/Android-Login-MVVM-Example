@@ -89,7 +89,7 @@ public class LoginDataSource {
         ExecutorService x = ThisApplication.getExecutor();
         Log.i(TAG, "createSessionInBackground - got executor");
         String session = null;
-        Callable<String> runnable = new Callable<String>() {
+        Callable<String> callable = new Callable<String>() {
             @Override
             public String call() throws IOException {
                 return sessionHelper.createTmdbSession(tmdb, username, password);
@@ -97,8 +97,8 @@ public class LoginDataSource {
         };
 
         try {
-            Log.i(TAG, "createSessionInBackground - about to submit runnable");
-            Future<String> future = x.submit(runnable);
+            Log.i(TAG, "createSessionInBackground - callable - before submit");
+            Future<String> future = x.submit(callable);
             session = future.get(); // awaits the result
             int a = 2;
         } catch (ExecutionException ee) {
@@ -128,7 +128,7 @@ public class LoginDataSource {
                 throw exception;
             }
         } catch (InterruptedException ie) {
-            Log.i(TAG, "InterruptedException exit createSessionInBackground");
+            Log.i(TAG, "createSessionInBackground - InterruptedException exit createSessionInBackground");
             return null;
         }
 
