@@ -10,11 +10,11 @@ public class SessionResult {
     @Nullable
     private Object error;
 
-    SessionResult(@Nullable Object error) {
+    public SessionResult(@Nullable Object error) {
         this.error = error;
     }
 
-    SessionResult(@Nullable LoggedInSession success) {
+    public SessionResult(@Nullable LoggedInSession success) {
         this.success = success;
     }
 

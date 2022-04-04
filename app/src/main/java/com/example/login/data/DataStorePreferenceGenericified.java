@@ -82,7 +82,10 @@ public class DataStorePreferenceGenericified {
             result = flowableResult.blockingFirst();
         } catch (NoSuchElementException nse) {
             Log.i(TAG, "get - Flowable result - NoSuchElementException");
-            // if nothing found, this will be thrown - keep result = null
+            // if nothing found, this could be thrown - keep result = null
+        } catch (NullPointerException npe) {
+            Log.i(TAG, "get - Flowable result - NullPointerException - missing data");
+            // if nothing found, this could be thrown - keep result = null
         }
 
         /* convert the result to print out on log */
